@@ -9,11 +9,31 @@ interface AppHeaderProps {
   cupoStatus?: CupoStatus;
 }
 
-const cupoConfig: Record<CupoStatus, { label: string; className: string; color: string }> = {
-  disponible: { label: "Disponible", className: "cupo-disponible", color: "text-emerald-500" },
-  alerta: { label: "Límite próximo", className: "cupo-alerta", color: "text-amber-500" },
-  critico: { label: "Límite casi alcanzado", className: "cupo-critico", color: "text-red-500" },
-  bloqueado: { label: "No puedes registrar", className: "cupo-bloqueado", color: "text-gray-500" },
+const cupoConfig: Record<CupoStatus, { label: string; bgColor: string; textColor: string; dotColor: string }> = {
+  disponible: {
+    label: "Disponible",
+    bgColor: "#d1fae5",
+    textColor: "#065f46",
+    dotColor: "#10b981"
+  },
+  alerta: {
+    label: "Límite próximo",
+    bgColor: "#fef3c7",
+    textColor: "#92400e",
+    dotColor: "#f59e0b"
+  },
+  critico: {
+    label: "Límite casi alcanzado",
+    bgColor: "#fee2e2",
+    textColor: "#991b1b",
+    dotColor: "#ef4444"
+  },
+  bloqueado: {
+    label: "No puedes registrar",
+    bgColor: "#e5e7eb",
+    textColor: "#374151",
+    dotColor: "#6b7280"
+  },
 };
 
 export function AppHeader({
@@ -25,31 +45,38 @@ export function AppHeader({
   const cupo = cupoConfig[cupoStatus];
 
   return (
-    <header className="fides-header justify-between">
-      {/* Left: Notaria Name (hidden on mobile, replaced by menu button space) */}
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+      {/* Left: Notaria Name */}
       <div className="hidden lg:block">
-        <p className="text-base font-medium text-mat-text-secondary">{notaria}</p>
+        <p className="text-[15px] font-medium text-gray-600">{notaria}</p>
       </div>
 
-      {/* Mobile spacer for menu button */}
+      {/* Mobile spacer */}
       <div className="lg:hidden w-14" />
 
-      {/* Right: User Info + Cupo */}
-      <div className="flex items-center gap-4 lg:gap-6">
+      {/* Right: Cupo Status + User Info */}
+      <div className="flex items-center gap-5">
         {/* Cupo Indicator */}
-        <div className={cupo.className}>
-          <Circle size={12} className="fill-current" />
-          <span className="hidden sm:inline">{cupo.label}</span>
+        <div
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+          style={{
+            backgroundColor: cupo.bgColor,
+            color: cupo.textColor,
+            border: `1px solid ${cupo.dotColor}40`
+          }}
+        >
+          <Circle size={8} fill={cupo.dotColor} color={cupo.dotColor} />
+          <span>{cupo.label}</span>
         </div>
 
         {/* User Info */}
         <div className="flex items-center gap-3">
           <div className="hidden sm:block text-right">
-            <p className="text-base font-semibold text-mat-text-primary">{userName}</p>
-            <p className="text-sm text-mat-text-muted">{role}</p>
+            <p className="text-[15px] font-semibold text-gray-800">{userName}</p>
+            <p className="text-[13px] text-gray-500">{role}</p>
           </div>
-          <div className="w-11 h-11 rounded-full bg-fides-lavender-200 flex items-center justify-center">
-            <User size={22} className="text-fides-navy-600" />
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+            <User size={20} className="text-gray-500" />
           </div>
         </div>
       </div>
