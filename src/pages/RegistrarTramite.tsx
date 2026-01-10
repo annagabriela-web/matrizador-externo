@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { TramiteTypeSelector } from "@/components/tramites/TramiteTypeSelector";
-import { User, Phone, FileText, StickyNote, ArrowLeft, Check } from "lucide-react";
+import { User, Phone, FileText, StickyNote, ArrowLeft, Check, AlertTriangle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useRegistrarTramite, useCupoDisponible } from "@/hooks/useMatrizadorApi";
 
 interface FormData {
   tipoTramite: string;
+  tramiteId?: string;
   nombreCliente: string;
   cedula: string;
   telefono: string;
@@ -16,7 +18,6 @@ interface FormData {
 const RegistrarTramite = () => {
   const navigate = useNavigate();
   const [showTypeSelector, setShowTypeSelector] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     tipoTramite: "",
     nombreCliente: "",
@@ -24,20 +25,27 @@ const RegistrarTramite = () => {
     telefono: "",
     notas: "",
   });
-
   const [errors, setErrors] = useState<Partial<FormData>>({});
+
+  // API hooks
+  const { mutate: registrar, isPending: isSubmitting } = useRegistrarTramite();
+  const { data: cupo } = useCupoDisponible();
+
+  // Check if registration is blocked
+  const isBlocked = cupo?.puede_registrar === false;
+  const showWarning = cupo && cupo.porcentaje_usado >= 80 && cupo.porcentaje_usado < 100;
 
   const validateForm = () => {
     const newErrors: Partial<FormData> = {};
 
     if (!formData.tipoTramite) {
-      newErrors.tipoTramite = "Debe seleccionar un tipo de trámite";
+      newErrors.tipoTramite = "Debe seleccionar un tipo de tramite";
     }
     if (!formData.nombreCliente || formData.nombreCliente.length < 3) {
       newErrors.nombreCliente = "El nombre debe tener al menos 3 caracteres";
     }
     if (!formData.cedula || !/^\d{10,13}$/.test(formData.cedula)) {
-      newErrors.cedula = "La cédula/RUC debe tener entre 10 y 13 dígitos";
+      newErrors.cedula = "La cedula/RUC debe tener entre 10 y 13 digitos";
     }
 
     setErrors(newErrors);
@@ -47,23 +55,41 @@ const RegistrarTramite = () => {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    
-    toast.success("Trámite registrado con éxito", {
-      description: `El trámite para ${formData.nombreCliente} fue registrado. La cajera será notificada.`,
-      duration: 8000,
-    });
-    
-    navigate("/");
+    if (isBlocked) {
+      toast.error("Registro bloqueado", {
+        description: "Se ha alcanzado el limite mensual. Contacte al notario.",
+      });
+      return;
+    }
+
+    registrar(
+      {
+        tramite: formData.tramiteId,
+        concepto: formData.tipoTramite,
+        nombre_cliente: formData.nombreCliente,
+        cedula_cliente: formData.cedula,
+        telefono: formData.telefono || undefined,
+        notas: formData.notas || undefined,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Tramite registrado con exito", {
+            description: `El tramite para ${formData.nombreCliente} fue registrado. La cajera sera notificada.`,
+            duration: 8000,
+          });
+          navigate("/");
+        },
+        onError: (error) => {
+          toast.error("Error al registrar", {
+            description: error instanceof Error ? error.message : "Intente nuevamente",
+          });
+        },
+      }
+    );
   };
 
-  const handleSelectTramite = (tramite: string) => {
-    setFormData({ ...formData, tipoTramite: tramite });
+  const handleSelectTramite = (tramite: string, tramiteId?: string) => {
+    setFormData({ ...formData, tipoTramite: tramite, tramiteId });
     setShowTypeSelector(false);
     setErrors({ ...errors, tipoTramite: undefined });
   };
@@ -87,34 +113,64 @@ const RegistrarTramite = () => {
               <ArrowLeft size={24} className="text-fides-navy-600" />
             </Link>
             <div>
-              <h1 className="fides-title">REGISTRAR NUEVO TRÁMITE</h1>
+              <h1 className="fides-title">REGISTRAR NUEVO TRAMITE</h1>
               <p className="fides-body mt-1">Complete los datos del cliente</p>
             </div>
           </div>
 
+          {/* Blocked Alert */}
+          {isBlocked && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-3">
+              <AlertTriangle size={24} className="text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-red-700">Limite mensual alcanzado</p>
+                <p className="text-red-600 text-base">
+                  No es posible registrar mas tramites este mes. Contacte al notario.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Warning Alert */}
+          {showWarning && !isBlocked && (
+            <div className="mb-6 p-4 rounded-xl bg-amber-50 border-2 border-amber-200 flex items-start gap-3">
+              <AlertTriangle size={24} className="text-amber-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-amber-700">Limite proximo</p>
+                <p className="text-amber-600 text-base">
+                  La notaria se acerca al limite mensual ({Math.round(cupo.porcentaje_usado)}% usado).
+                  Puede continuar registrando.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Form Card */}
           <div className="fides-card max-w-2xl mx-auto">
             <div className="space-y-6">
-              {/* Tipo de Trámite */}
+              {/* Tipo de Tramite */}
               <div>
                 <label className="fides-label flex items-center gap-2 mb-3">
                   <FileText size={20} className="text-fides-accent" />
-                  Tipo de Trámite *
+                  Tipo de Tramite *
                 </label>
                 <button
                   onClick={() => setShowTypeSelector(true)}
+                  disabled={isBlocked}
                   className={`w-full fides-input text-left flex items-center justify-between ${
                     errors.tipoTramite ? "fides-input-error" : ""
-                  } ${formData.tipoTramite ? "fides-input-valid" : ""}`}
+                  } ${formData.tipoTramite ? "fides-input-valid" : ""} ${
+                    isBlocked ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   <span className={formData.tipoTramite ? "text-mat-text-primary" : "text-mat-text-muted"}>
-                    {formData.tipoTramite || "Seleccionar tipo de trámite..."}
+                    {formData.tipoTramite || "Seleccionar tipo de tramite..."}
                   </span>
                   <span className="text-fides-accent font-medium">Cambiar</span>
                 </button>
                 {errors.tipoTramite && (
                   <p className="text-fides-danger text-sm mt-2 flex items-center gap-1">
-                    ⚠️ {errors.tipoTramite}
+                    {errors.tipoTramite}
                   </p>
                 )}
               </div>
@@ -132,21 +188,24 @@ const RegistrarTramite = () => {
                     setFormData({ ...formData, nombreCliente: e.target.value });
                     if (errors.nombreCliente) setErrors({ ...errors, nombreCliente: undefined });
                   }}
-                  placeholder="Ej: Juan Carlos Pérez Mendoza"
-                  className={`fides-input ${errors.nombreCliente ? "fides-input-error" : ""}`}
+                  placeholder="Ej: Juan Carlos Perez Mendoza"
+                  disabled={isBlocked}
+                  className={`fides-input ${errors.nombreCliente ? "fides-input-error" : ""} ${
+                    isBlocked ? "opacity-50" : ""
+                  }`}
                 />
                 {errors.nombreCliente && (
                   <p className="text-fides-danger text-sm mt-2 flex items-center gap-1">
-                    ⚠️ {errors.nombreCliente}
+                    {errors.nombreCliente}
                   </p>
                 )}
               </div>
 
-              {/* Cédula / RUC */}
+              {/* Cedula / RUC */}
               <div>
                 <label className="fides-label flex items-center gap-2 mb-3">
                   <FileText size={20} className="text-fides-accent" />
-                  Cédula / RUC *
+                  Cedula / RUC *
                 </label>
                 <input
                   type="text"
@@ -158,27 +217,31 @@ const RegistrarTramite = () => {
                   }}
                   placeholder="Ej: 1234567890"
                   maxLength={13}
-                  className={`fides-input ${errors.cedula ? "fides-input-error" : ""}`}
+                  disabled={isBlocked}
+                  className={`fides-input ${errors.cedula ? "fides-input-error" : ""} ${
+                    isBlocked ? "opacity-50" : ""
+                  }`}
                 />
                 {errors.cedula && (
                   <p className="text-fides-danger text-sm mt-2 flex items-center gap-1">
-                    ⚠️ {errors.cedula}
+                    {errors.cedula}
                   </p>
                 )}
               </div>
 
-              {/* Teléfono */}
+              {/* Telefono */}
               <div>
                 <label className="fides-label flex items-center gap-2 mb-3">
                   <Phone size={20} className="text-fides-accent" />
-                  Teléfono (opcional)
+                  Telefono (opcional)
                 </label>
                 <input
                   type="tel"
                   value={formData.telefono}
                   onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
                   placeholder="Ej: 0991234567"
-                  className="fides-input"
+                  disabled={isBlocked}
+                  className={`fides-input ${isBlocked ? "opacity-50" : ""}`}
                 />
               </div>
 
@@ -194,7 +257,8 @@ const RegistrarTramite = () => {
                   placeholder="Ej: Cliente viene con documentos originales..."
                   rows={3}
                   maxLength={500}
-                  className="fides-input resize-none"
+                  disabled={isBlocked}
+                  className={`fides-input resize-none ${isBlocked ? "opacity-50" : ""}`}
                 />
                 <p className="text-sm text-mat-text-muted mt-1 text-right">
                   {formData.notas.length}/500
@@ -211,7 +275,7 @@ const RegistrarTramite = () => {
                 </Link>
                 <button
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isBlocked}
                   className="fides-btn-primary flex-1 py-4 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
