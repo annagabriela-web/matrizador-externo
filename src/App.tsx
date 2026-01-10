@@ -26,7 +26,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/dashboard/matrizadora-ext">
+        <BrowserRouter>
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
