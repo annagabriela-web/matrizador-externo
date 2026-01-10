@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        logo: ['Quattrocento', 'serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,33 +61,97 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // FIDES Custom Colors
+        fides: {
+          navy: {
+            900: "hsl(var(--fides-navy-900))",
+            800: "hsl(var(--fides-navy-800))",
+            700: "hsl(var(--fides-navy-700))",
+            600: "hsl(var(--fides-navy-600))",
+            500: "hsl(var(--fides-navy-500))",
+          },
+          accent: {
+            DEFAULT: "hsl(var(--fides-accent))",
+            light: "hsl(var(--fides-accent-light))",
+            dark: "hsl(var(--fides-accent-dark))",
+          },
+          lavender: {
+            100: "hsl(var(--fides-lavender-100))",
+            200: "hsl(var(--fides-lavender-200))",
+            300: "hsl(var(--fides-lavender-300))",
+            400: "hsl(var(--fides-lavender-400))",
+          },
+          success: "hsl(var(--fides-success))",
+          warning: "hsl(var(--fides-warning))",
+          danger: "hsl(var(--fides-danger))",
+          info: "hsl(var(--fides-info))",
+        },
+        mat: {
+          text: {
+            primary: "hsl(var(--mat-text-primary))",
+            secondary: "hsl(var(--mat-text-secondary))",
+            muted: "hsl(var(--mat-text-muted))",
+            disabled: "hsl(var(--mat-text-disabled))",
+          },
+          cupo: {
+            disponible: "hsl(var(--mat-cupo-disponible))",
+            alerta: "hsl(var(--mat-cupo-alerta))",
+            critico: "hsl(var(--mat-cupo-critico))",
+            bloqueado: "hsl(var(--mat-cupo-bloqueado))",
+          },
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "var(--border-radius-lg)",
+        "2xl": "var(--border-radius-xl)",
+      },
+      spacing: {
+        'touch': 'var(--touch-target)',
+        'touch-sm': 'var(--touch-target-sm)',
+      },
+      fontSize: {
+        'body': ['1.125rem', { lineHeight: '1.6' }],
+        'label': ['1rem', { lineHeight: '1.5' }],
+      },
+      boxShadow: {
+        'fides-xs': 'var(--shadow-xs)',
+        'fides-sm': 'var(--shadow-sm)',
+        'fides-md': 'var(--shadow-md)',
+        'fides-lg': 'var(--shadow-lg)',
+        'fides-xl': 'var(--shadow-xl)',
+        'fides-glow': 'var(--shadow-glow)',
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "fade-in": {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-in-right": {
+          from: { opacity: "0", transform: "translateX(20px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "pulse-soft": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in": "fade-in 0.3s ease-out",
+        "slide-in-right": "slide-in-right 0.3s ease-out",
+        "pulse-soft": "pulse-soft 2s ease-in-out infinite",
       },
     },
   },
