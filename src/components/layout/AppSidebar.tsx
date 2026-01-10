@@ -44,15 +44,38 @@ export function AppSidebar() {
           ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        {/* Logo */}
+        {/* Logo - FIDES Branding */}
         <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-fides-accent to-fides-accent-dark flex items-center justify-center shadow-fides-md">
-              <span className="font-logo text-xl font-bold text-white">F</span>
-            </div>
+          <div 
+            className="flex items-center gap-3 rounded-lg px-4 py-2"
+            style={{ 
+              background: 'linear-gradient(135deg, #1a2744, #0f1729)',
+              minWidth: '180px'
+            }}
+          >
+            {/* Icono F con efecto especial */}
+            <span 
+              className="font-sans text-[28px] font-bold"
+              style={{ 
+                color: '#5170ff',
+                textShadow: '2px 2px 0 #F59E0B, -1px 4px 0 #3a5ae0'
+              }}
+            >
+              F
+            </span>
             <div>
-              <h1 className="font-logo text-xl font-bold text-white">Fides</h1>
-              <p className="text-xs text-white/60">Management Suite</p>
+              <h1 
+                className="text-xl font-bold text-white"
+                style={{ fontFamily: "'Quattrocento', serif" }}
+              >
+                Fides
+              </h1>
+              <p 
+                className="text-[10px] font-medium"
+                style={{ color: 'rgba(255,255,255,0.8)' }}
+              >
+                Management Suite
+              </p>
             </div>
           </div>
         </div>
