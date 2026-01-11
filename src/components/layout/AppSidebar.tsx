@@ -4,15 +4,13 @@ import {
   ClipboardList,
   Package,
   HelpCircle,
-  LogOut,
   Menu,
   X,
   Settings,
   User
 } from "lucide-react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 
 const mainNavItems = [
   { icon: Home, label: "Inicio", path: "/" },
@@ -30,15 +28,8 @@ const configNavItems = [
 export function AppSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
   return (
     <>
@@ -154,26 +145,8 @@ export function AppSidebar() {
           </div>
         </nav>
 
-        {/* Logout Button - Coral/Salmon style */}
-        <div className="p-3">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-[15px] font-semibold transition-all duration-200"
-            style={{
-              background: '#f87171',
-              color: 'white'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#ef4444';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f87171';
-            }}
-          >
-            <LogOut size={18} strokeWidth={2} />
-            <span>Cerrar Sesión</span>
-          </button>
-        </div>
+        {/* Footer spacer */}
+        <div className="p-3" />
       </aside>
     </>
   );
