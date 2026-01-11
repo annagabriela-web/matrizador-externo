@@ -97,8 +97,8 @@ export function RecentTramites({ tramites, onViewAll }: RecentTramitesProps) {
                       {status.label}
                     </span>
                   </td>
-                  <td className="py-3.5 px-3 text-[14px] font-mono text-[#5170ff]">
-                    {tramite.escrituraNo || <span className="text-gray-300">-</span>}
+                  <td className="py-3.5 px-3 text-[14px] text-gray-600">
+                    {tramite.escrituraNo || <span className="text-gray-400">-</span>}
                   </td>
                 </tr>
               );
